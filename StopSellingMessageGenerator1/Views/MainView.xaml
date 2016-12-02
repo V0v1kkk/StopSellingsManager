@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<Window x:Class="StopSellingMessageGenerator.Views.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:StopSellingMessageGenerator"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        Title="Диспетчер стоп-продаж         © Рогожин Владимир 2016"
+        Width="1000"
+        Height="760"
+        MinWidth="600"
+        MinHeight="770"
+        Icon="../Images/windowIcon.png"
+        mc:Ignorable="d">
+    <xctk:BusyIndicator BusyContent="Пожалуйста подождите" IsBusy="{Binding ViewBusy}">
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Row="0"
+                  Grid.RowSpan="5"
+                  Grid.Column="0"
+                  Grid.ColumnSpan="2"
+                  Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <ListView Grid.Row="0"
+                          Width="Auto"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          ItemsSource="{Binding Path=StopSellings,
+                                                Mode=TwoWay,
+                                                UpdateSourceTrigger=PropertyChanged}"
+                          SelectedItem="{Binding Path=CurrentStopSelling,
+                                                 Mode=TwoWay,
+                                                 UpdateSourceTrigger=PropertyChanged}">
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Удалить" />
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+
+                    <ListView.Resources>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Useful}" Value="false">
+                                    <Setter Property="Background" Value="LightPink" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.Resources>
+
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="200"
+                                            DisplayMemberBinding="{Binding TTName,
+                                                                           Mode=OneWay}"
+                                            Header="Название ТТ" />
+                            <GridViewColumn Width="270"
+                                            DisplayMemberBinding="{Binding Reason,
+                                                                           Mode=OneWay}"
+                                            Header="Причина" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+
+
+                <Grid Grid.Row="1"
+                      Margin="0,10,0,0"
+                      VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Width="150"
+                            Height="25"
+                            Margin="5"
+                            VerticalAlignment="Center"
+                            Click="{DataBinding CreateNewStopSellingCommand}">
+                        Новая стоп-продажа
+                    </Button>
+
+                    <Button Grid.Column="1"
+                            Width="150"
+                            Height="25"
+                            Margin="5"
+                            VerticalAlignment="Center"
+                            Click="{DataBinding CloseAndExportStopSellingCommand}">
+                        Закрыть стоп-продажу
+                    </Button>
+
+                    <StackPanel Grid.Column="3" Orientation="Horizontal">
+                        <Button Width="25"
+                                Height="25"
+                                Margin="5"
+                                VerticalAlignment="Center"
+                                Click="{DataBinding OpenAboutWindowCommand}">
+                            <Image Source="../Images/info.png" />
+                        </Button>
+                        <Button Width="25"
+                                Height="25"
+                                Margin="5"
+                                VerticalAlignment="Center"
+                                Click="{DataBinding OpenSettingsWindowCommand}">
+                            <Image Source="../Images/settings.png" />
+                        </Button>
+                    </StackPanel>
+
+                </Grid>
+
+            </Grid>
+
+            <Border Grid.Row="0"
+                    Grid.Column="2"
+                    Grid.ColumnSpan="2"
+                    BorderBrush="Black"
+                    BorderThickness="1,1,1,0" />
+
+
+
+
+
+            <Grid Grid.Row="0"
+                  Grid.Column="2"
+                  Grid.ColumnSpan="2"
+                  Margin="5"
+                  IsEnabled="{DataBinding 'CurrentStopSelling!=null'}">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Margin="5"
+                           VerticalAlignment="Center">
+                    Введите номер ТТ:
+                </TextBlock>
+                <TextBox Grid.Row="0"
+                         Grid.Column="1"
+                         Width="Auto"
+                         Height="25"
+                         Margin="5"
+                         HorizontalContentAlignment="Left"
+                         VerticalContentAlignment="Center"
+                         Text="{Binding CurrentStopSelling.TTNumber,
+                                        Mode=TwoWay}" />
+                <Button Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="5"
+                        HorizontalAlignment="Stretch"
+                        Click="{DataBinding CheckTtInformationCommand}">
+                    Проверить
+                </Button>
+
+
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Margin="5"
+                           VerticalAlignment="Center">
+                    Название ТТ:
+                </TextBlock>
+                <TextBox Grid.Row="1"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="2"
+                         Width="Auto"
+                         Margin="5"
+                         HorizontalContentAlignment="Left"
+                         VerticalContentAlignment="Center"
+                         Background="GhostWhite"
+                         IsReadOnly="True"
+                         Text="{Binding CurrentStopSelling.TTName,
+                                        Mode=OneWay}" />
+
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Margin="5"
+                           VerticalAlignment="Center">
+                    Регион:
+                </TextBlock>
+                <TextBox Grid.Row="2"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="2"
+                         Width="Auto"
+                         Margin="5"
+                         HorizontalContentAlignment="Left"
+                         VerticalContentAlignment="Center"
+                         Background="GhostWhite"
+                         IsReadOnly="True"
+                         Text="{Binding CurrentStopSelling.Region,
+                                        Mode=OneWay}" />
+
+
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           Margin="5"
+                           VerticalAlignment="Center">
+                    Населенный пункт:
+                </TextBlock>
+                <TextBox Grid.Row="3"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="2"
+                         Width="Auto"
+                         Margin="5"
+                         HorizontalContentAlignment="Left"
+                         VerticalContentAlignment="Center"
+                         Background="GhostWhite"
+                         IsReadOnly="True"
+                         Text="{Binding CurrentStopSelling.City,
+                                        Mode=OneWay}" />
+
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Margin="5"
+                           VerticalAlignment="Center">
+                    Грейд:
+                </TextBlock>
+                <TextBox Grid.Row="4"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="2"
+                         Width="Auto"
+                         Margin="5"
+                         HorizontalContentAlignment="Left"
+                         VerticalContentAlignment="Center"
+                         Background="GhostWhite"
+                         IsReadOnly="True"
+                         Text="{Binding CurrentStopSelling.Greid,
+                                        Mode=OneWay}" />
+
+            </Grid>
+
+            <Border Grid.Row="1"
+                    Grid.Column="2"
+                    Grid.ColumnSpan="2"
+                    BorderBrush="Black"
+                    BorderThickness="1,1,1,0" />
+
+            <Grid Grid.Row="1"
+                  Grid.Column="2"
+                  Grid.ColumnSpan="2"
+                  Margin="5"
+                  IsEnabled="{DataBinding 'CurrentStopSelling!=null'}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Margin="5"
+                           VerticalAlignment="Center">
+                    № обращения + время:
+                </TextBlock>
+                <TextBox Grid.Row="0"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="2"
+                         Width="Auto"
+                         Height="25"
+                         Margin="5"
+                         HorizontalContentAlignment="Left"
+                         VerticalContentAlignment="Center"
+                         Text="{Binding CurrentStopSelling.ObrashenieAndTimeStringAdapter,
+                                        Mode=TwoWay,
+                                        UpdateSourceTrigger=LostFocus}" />
+
+
+                <StackPanel Grid.Row="2"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="3"
+                            Margin="5"
+                            Orientation="Vertical">
+                    <TextBlock Margin="5" HorizontalAlignment="Left">Причина (описание проблемы):</TextBlock>
+                    <!-- <TextBox Margin="5"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Visible" />-->
+                    <ComboBox Margin="5"
+                              HorizontalContentAlignment="Left"
+                              VerticalContentAlignment="Center"
+                              IsEditable="True"
+                              ItemsSource="{Binding Reasons}"
+                              SelectedItem="{Binding SelectedReason,
+                                                     Mode=TwoWay}"
+                              SelectedValue="{Binding CurrentStopSelling.Reason,
+                                                      Mode=TwoWay}"
+                              Text="{Binding NewReason,
+                                             UpdateSourceTrigger=LostFocus,
+                                             Mode=OneWayToSource}" />
+
+                </StackPanel>
+
+                <StackPanel Grid.Row="3"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="3"
+                            Margin="5"
+                            Orientation="Vertical">
+
+                    <TextBlock Margin="5"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center">
+                        Ответственное подразделение:
+                    </TextBlock>
+                    <ComboBox Margin="5"
+                              HorizontalContentAlignment="Left"
+                              VerticalContentAlignment="Center"
+                              IsEditable="True"
+                              ItemsSource="{Binding Responsibilities}"
+                              SelectedItem="{Binding SelectedResponsibility,
+                                                     Mode=TwoWay}"
+                              SelectedValue="{Binding CurrentStopSelling.Responsibility,
+                                                      Mode=TwoWay}"
+                              Text="{Binding NewResponsibility,
+                                             UpdateSourceTrigger=LostFocus,
+                                             Mode=OneWayToSource}" />
+                </StackPanel>
+
+
+            </Grid>
+
+            <Border Grid.Row="2"
+                    Grid.Column="2"
+                    Grid.ColumnSpan="2"
+                    BorderBrush="Black"
+                    BorderThickness="1" />
+
+            <Grid Grid.Row="2"
+                  Grid.Column="2"
+                  Grid.ColumnSpan="2"
+                  Margin="5"
+                  IsEnabled="{DataBinding 'CurrentStopSelling!=null'}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Margin="5"
+                           VerticalAlignment="Center">
+                    Стоп-время и дата:
+                </TextBlock>
+                <xctk:DateTimePicker Grid.Row="0"
+                                     Grid.Column="1"
+                                     Grid.ColumnSpan="2"
+                                     Margin="5"
+                                     HorizontalContentAlignment="Right"
+                                     VerticalContentAlignment="Center"
+                                     Value="{Binding CurrentStopSelling.StartStopSellingTime,
+                                                     Mode=TwoWay,
+                                                     UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Margin="5"
+                           VerticalAlignment="Center">
+                    Стоп-время и дата завершения:
+                </TextBlock>
+                <xctk:DateTimePicker Grid.Row="1"
+                                     Grid.Column="1"
+                                     Grid.ColumnSpan="2"
+                                     Margin="5"
+                                     HorizontalContentAlignment="Right"
+                                     VerticalContentAlignment="Center"
+                                     Value="{Binding CurrentStopSelling.StopStopSellingTime,
+                                                     Mode=TwoWay,
+                                                     UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Margin="5"
+                           VerticalAlignment="Center">
+                    Длительность:
+                </TextBlock>
+                <TextBox Grid.Row="2"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="2"
+                         Width="Auto"
+                         Margin="5"
+                         HorizontalContentAlignment="Right"
+                         VerticalContentAlignment="Center"
+                         Background="GhostWhite"
+                         IsReadOnly="True"
+                         Text="{Binding CurrentStopSelling.DurationStopSelling,
+                                        Mode=OneWay}" />
+
+            </Grid>
+
+            <Border Grid.Row="3"
+                    Grid.Column="2"
+                    Grid.ColumnSpan="2"
+                    BorderBrush="Black"
+                    BorderThickness="1,0,1,1" />
+
+            <Grid Grid.Row="3"
+                  Grid.Column="2"
+                  Grid.ColumnSpan="2"
+                  Margin="5"
+                  VerticalAlignment="Stretch"
+                  IsEnabled="{DataBinding 'CurrentStopSelling!=null'}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           HorizontalAlignment="Left">
+                    Комментарий:
+                </TextBlock>
+
+                <TextBox Grid.Row="1"
+                         Grid.Column="0"
+                         Grid.ColumnSpan="2"
+                         Margin="5"
+                         VerticalAlignment="Stretch"
+                         AcceptsReturn="True"
+                         Text="{Binding CurrentStopSelling.Coments,
+                                        Mode=TwoWay,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Visible" />
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Margin="5">
+                    Сроки решения:
+                </TextBlock>
+                <TextBox Grid.Row="2"
+                         Grid.Column="1"
+                         Margin="5"
+                         HorizontalContentAlignment="Right"
+                         Text="{Binding CurrentStopSelling.ExpectedSolutionTime,
+                                        Mode=TwoWay,
+                                        UpdateSourceTrigger=PropertyChanged}" />
+
+                <CheckBox Grid.Row="3"
+                          Grid.Column="0"
+                          Margin="5"
+                          IsChecked="{Binding CurrentStopSelling.Reserve,
+                                              Mode=TwoWay}">
+                    Резерв настраивался?
+                </CheckBox>
+                <xctk:DateTimePicker Grid.Row="3"
+                                     Grid.Column="1"
+                                     Margin="5"
+                                     HorizontalAlignment="Stretch"
+                                     HorizontalContentAlignment="Right"
+                                     IsEnabled="{DataBinding CurrentStopSelling.Reserve,
+                                                             Mode=TwoWay}"
+                                     Watermark="Во сколько?"
+                                     Value="{Binding CurrentStopSelling.ReserveConfigureDateTime,
+                                                     Mode=TwoWay,
+                                                     UpdateSourceTrigger=PropertyChanged}" />
+                <CheckBox Grid.Row="4"
+                          Grid.Column="0"
+                          Margin="5"
+                          IsChecked="{Binding CurrentStopSelling.RnitNotified,
+                                              Mode=TwoWay}">
+                    РНИТ оповещался?
+                </CheckBox>
+                <xctk:DateTimePicker Grid.Row="4"
+                                     Grid.Column="1"
+                                     Margin="5"
+                                     HorizontalAlignment="Stretch"
+                                     HorizontalContentAlignment="Right"
+                                     IsEnabled="{DataBinding CurrentStopSelling.RnitNotified,
+                                                             Mode=TwoWay}"
+                                     Watermark="Во сколько?"
+                                     Value="{Binding CurrentStopSelling.RnitNotifiedTime,
+                                                     Mode=TwoWay,
+                                                     UpdateSourceTrigger=PropertyChanged}" />
+
+
+            </Grid>
+
+
+            <StackPanel Grid.Row="4"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="2"
+                        Margin="5"
+                        VerticalAlignment="Center"
+                        IsEnabled="{DataBinding 'CurrentStopSelling!=null'}"
+                        Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Margin="5" IsChecked="{Binding NewStopSellingMessageOption}">Открытие</RadioButton>
+                    <RadioButton Margin="5" IsChecked="{Binding EndStopSellingMessageOption}">Закрытие</RadioButton>
+                </StackPanel>
+                <Button Height="50"
+                        Margin="5"
+                        Click="{DataBinding CreateMessageTextCommand}">
+                    Сформировать текст и копировать в буфер
+                </Button>
+            </StackPanel>
+
+        </Grid>
+    </xctk:BusyIndicator>
+</Window>
