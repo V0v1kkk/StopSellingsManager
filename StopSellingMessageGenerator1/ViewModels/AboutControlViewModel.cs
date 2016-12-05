@@ -4,6 +4,9 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace StopSellingMessageGenerator.ViewModels
 {
+    /// <summary>
+    /// Copyright (c) 2012 Christoph Gattnar
+    /// </summary>
     class AboutControlViewModel : ViewModelBase
     {
         #region Fields
@@ -50,7 +53,7 @@ namespace StopSellingMessageGenerator.ViewModels
                 Environment.NewLine +
                 "FileHelpers (http://www.filehelpers.net/) - MIT лицензия" +
                 Environment.NewLine +
-                "NLog (http://nlog-project.org/)" +
+                "NLog (http://nlog-project.org/) - BSD лицензия" +
                 Environment.NewLine +
                 "Extended WPF Toolkit (http://wpftoolkit.codeplex.com/) - MS-PL лицензия"+
                 Environment.NewLine +

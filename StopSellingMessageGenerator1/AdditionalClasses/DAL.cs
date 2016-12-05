@@ -9,12 +9,11 @@ using FileHelpers;
 using NLog;
 using StopSellingMessageGenerator.Interfaces;
 using StopSellingMessageGenerator.Models;
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable once CheckNamespace
 namespace StopSellingMessageGenerator
 {
-	
-    // ReSharper disable once InconsistentNaming
     public class DAL : IDataSource, ITtInformationSource
     {
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -34,7 +33,6 @@ namespace StopSellingMessageGenerator
             Logger.Debug($"Initialized DAL with path: {workPath}");
         }
 
-        // ReSharper disable once InconsistentNaming
         public static DAL GetDAL(string workPath)
         {
             if (_instance == null)
@@ -102,53 +100,7 @@ namespace StopSellingMessageGenerator
 			}
         }
 
-
-        /*
-        public bool ExportStopSelling(StopSelling stopSelling)
-        {
-            bool otchetFileExist = File.Exists(_workPath + "\\otchet.csv");
-			try
-			{
-				using (FileStream aFile = new FileStream(_workPath + "\\otchet.csv", FileMode.Append, FileAccess.Write))
-				using (StreamWriter sw = new StreamWriter(aFile, Encoding.GetEncoding("windows-1251")))
-				{
-					if(!otchetFileExist)
-                    {
-                        sw.WriteLine("Регион;" +
-                                     "Город;" +
-                                     "Номер ТТ;" +
-                                     "Название ТТ;" +
-                                     "Грейд;" +
-                                     "Описание проблемы;" +
-                                     "Наличие резервной связи (Да\\Нет);" +
-                                     "Дата и время настройки резерва (МСК);" +
-                                     "Время возникновения стоп-продажи (МСК);" +
-                                     "Длительность стоп-продажи;" +
-                                     "Комментарий;" +
-                                     "Зона ответственности;" +
-                                     "Проблема экскалировалась на РНИТ (Да\\Нет);" +
-                                     "Время до эскалации до РНИТ"); //if we create file, we need to write header
-                    }
-					sw.WriteLine(stopSelling.ToString());
-				}
-				return true;
-			}
-			catch(Exception exception)
-			{
-				Logger.Fatal($"Не удалось сохранить стоп-продажу в отчёт. Ошибка {exception}" + Environment.NewLine + stopSelling);
-				return false;
-			}
-        }
 		
-    */
-		
-		
-		
-		/// <summary>
-        /// 
-        /// </summary>
-        /// <param name="reasons"></param>
-        /// <returns></returns>
 		public bool SaveReasonsOfStopSellings(List<string> reasons)
         {
 			try
@@ -187,14 +139,14 @@ namespace StopSellingMessageGenerator
 		
 		
 		
-		public bool SaveResponsibleDepartments(List<string> reasons)
+		public bool SaveResponsibleDepartments(List<string> departments)
         {
 			try
 			{
 				var serializer = new XmlSerializer(typeof(List<string>));
 				using (var stream = File.OpenWrite(_workPath + "\\Responsibilities.xml")) //Перезаписываем
 				{
-					serializer.Serialize(stream, reasons);
+					serializer.Serialize(stream, departments);
 				}
 				return true;
 			}            

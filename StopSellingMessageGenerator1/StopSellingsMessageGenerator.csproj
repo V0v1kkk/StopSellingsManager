@@ -27,12 +27,13 @@
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>\\fs-ekb-a0009\Отдел поддержки пользователей\Группа обработки обращений\Старшие смены\StopSellingsManager\Install\</InstallUrl>
     <UpdateUrl>\\fs-ekb-a0009\Отдел поддержки пользователей\Группа обработки обращений\Старшие смены\StopSellingsManager\Install\</UpdateUrl>
+    <SupportUrl>https://github.com/V0v1kkk/StopSellingsManager</SupportUrl>
     <TargetCulture>ru</TargetCulture>
     <ProductName>StopSellingsManager</ProductName>
     <PublisherName>Рогожин Владимир</PublisherName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>6</ApplicationRevision>
-    <ApplicationVersion>0.9.0.%2a</ApplicationVersion>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -167,12 +168,14 @@
     <Compile Include="AdditionalClasses\StopSellingsBulder.cs" />
     <Compile Include="AdditionalClasses\DAL.cs" />
     <Compile Include="AdditionalClasses\Helper.cs" />
+    <Compile Include="AdditionalClasses\WorkFolderOwnerChecker.cs" />
     <Compile Include="Enums\MessageTypeEnum.cs" />
     <Compile Include="Interfaces\IDataSource.cs" />
     <Compile Include="Interfaces\IMessageTextGenerator.cs" />
     <Compile Include="Interfaces\IReportGenerator.cs" />
     <Compile Include="Interfaces\IStopSellingsBulder.cs" />
     <Compile Include="Interfaces\ITtInformationSource.cs" />
+    <Compile Include="Interfaces\IWorkFolderOwnerChecker.cs" />
     <Compile Include="Models\PassportOfTT.cs" />
     <Compile Include="Models\StopSelling.cs" />
     <Compile Include="AdditionalClasses\Starter.cs" />

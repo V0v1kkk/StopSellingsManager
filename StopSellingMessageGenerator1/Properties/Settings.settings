@@ -5,5 +5,8 @@
     <Setting Name="PathToWorkFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)">D:\Git_Root\StopSellingMessageGenerator\StopSellingMessageGenerator1\bin\Debug\workfolder</Value>
     </Setting>
+    <Setting Name="firstRun" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

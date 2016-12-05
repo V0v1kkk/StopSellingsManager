@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using Autofac;
 using MugenMvvmToolkit;
@@ -14,13 +15,12 @@ namespace StopSellingMessageGenerator
         {
             //For stable work of application, DI-conteiner will be able to resolve these interfaces:
             //IDataSource, ITtInformationSource, IStopSellingsBulder, IMessageTextGenerator
+            //IReportGenerator, IWorkFolderOwnerChecker
+
+            var pathToWorkFolder = StopSellingMessageGenerator.Properties.Settings.Default.PathToWorkFolder;
 
             var builder = new ContainerBuilder();
 
-            var pathToWorkFolder = StopSellingMessageGenerator.Properties.Settings.Default.PathToWorkFolder;
-            //В констрор дала нужно передавать на ТТ информайшн
-            //чтобы сериализ/десериализ нормал
-            //т.е. нужен отдельный класс для реализ ITtInformationSource
             var DALInstance = DAL.GetDAL(pathToWorkFolder);
 
             builder.Register(c => DALInstance).As<IDataSource>().SingleInstance();
@@ -33,6 +33,7 @@ namespace StopSellingMessageGenerator
             }).As<IStopSellingsBulder>().InstancePerDependency();
             builder.Register(c => new MessageTextGeneratorReflection(pathToWorkFolder)).As<IMessageTextGenerator>();
             builder.Register(c => new ReportGenerator(pathToWorkFolder)).As<IReportGenerator>();
+            builder.Register(c => new WorkFolderOwnerChecker(pathToWorkFolder)).As<IWorkFolderOwnerChecker>();
 
             // ReSharper disable once ObjectCreationAsStatement
             new Bootstrapper<Starter>(this, new AutofacContainer(builder));

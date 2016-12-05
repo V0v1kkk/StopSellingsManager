@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using MugenMvvmToolkit;
@@ -26,6 +27,7 @@ namespace StopSellingMessageGenerator.ViewModels
         private readonly IToastPresenter _toastPresenter;
         private readonly IMessageTextGenerator _messageTextGenerator;
         private readonly IReportGenerator _reportGenerator;
+        private readonly IWorkFolderOwnerChecker _workFolderOwnerChecker;
 
         private bool _viewBusy;
         private StopSelling _currentStopSelling;
@@ -33,7 +35,6 @@ namespace StopSellingMessageGenerator.ViewModels
 
         private bool _newStopSellingMessageOption;
         private bool _endStopSellingMessageOption;
-
 
         #region Properties
 
@@ -69,96 +70,92 @@ namespace StopSellingMessageGenerator.ViewModels
                 OnPropertyChanged();
             }
         }
-		
-		
-		#region ReasonControl
-		
-		private string _selectedReason;
-		private ObservableCollection<string> _reasons;
 
+        #region ReasonControl
 
-		public ObservableCollection<string> Reasons
-		{
-			get { return _reasons; }
-		    private set
-		    {
-		        if (Equals(value, _reasons)) return;
-		        _reasons = value;
-		        OnPropertyChanged();
-		    }
-		}
+        private string _selectedReason;
+        private ObservableCollection<string> _reasons;
 
-		public string SelectedReason
-		{
-			get { return _selectedReason; }
-			set
-			{
-				_selectedReason = value;
-				OnPropertyChanged();
-			}
-		}
+        public ObservableCollection<string> Reasons
+        {
+            get { return _reasons; }
+            private set
+            {
+                if (Equals(value, _reasons)) return;
+                _reasons = value;
+                OnPropertyChanged();
+            }
+        }
 
-		public string NewReason
-		{
-			set
-			{
-				if (SelectedReason != null)
-				{
-					return;
-				}
-				if (!string.IsNullOrEmpty(value))
-				{
+        public string SelectedReason
+        {
+            get { return _selectedReason; }
+            set
+            {
+                _selectedReason = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string NewReason
+        {
+            set
+            {
+                if (SelectedReason != null)
+                {
+                    return;
+                }
+                if (!string.IsNullOrEmpty(value))
+                {
                     Reasons.Add(value);
-					SelectedReason = value;
-				}
-			}
-		}
-		
-		#endregion
-		
-		
-		#region ResponsibilityControl
-		
-		private string _selectedResponsibility;
-		private ObservableCollection<string> _responsibilities;
+                    SelectedReason = value;
+                }
+            }
+        }
 
+        #endregion
 
-		public ObservableCollection<string> Responsibilities
-		{
-			get { return _responsibilities; }
-			private set
-			{
-			    if (Equals(value, _responsibilities)) return;
-			    _responsibilities = value;
-			    OnPropertyChanged();
-			}
-		}
+        #region ResponsibilityControl
 
-		public string SelectedResponsibility
-		{
-			get { return _selectedResponsibility; }
-			set
-			{
-				_selectedResponsibility = value;
-				OnPropertyChanged();
-			}
-		}
+        private string _selectedResponsibility;
+        private ObservableCollection<string> _responsibilities;
 
-		public string NewResponsibility
-		{
-			set
-			{
-				if (SelectedResponsibility != null)
-				{
-					return;
-				}
-				if (!string.IsNullOrEmpty(value))
-				{
+        public ObservableCollection<string> Responsibilities
+        {
+            get { return _responsibilities; }
+            private set
+            {
+                if (Equals(value, _responsibilities)) return;
+                _responsibilities = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SelectedResponsibility
+        {
+            get { return _selectedResponsibility; }
+            set
+            {
+                _selectedResponsibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string NewResponsibility
+        {
+            set
+            {
+                if (SelectedResponsibility != null)
+                {
+                    return;
+                }
+                if (!string.IsNullOrEmpty(value))
+                {
                     Responsibilities.Add(value);
-					SelectedResponsibility = value;
-				}
-			}
-		}
+                    SelectedResponsibility = value;
+                }
+            }
+        }
 
         #endregion
 
@@ -188,17 +185,15 @@ namespace StopSellingMessageGenerator.ViewModels
 
         #endregion
 
-
         #endregion
 
-
-
-        public MainViewModel(IDataSource dataSource, IStopSellingsBulder stopSellingsBulder, IToastPresenter toastPresenter, 
-                                                IMessageTextGenerator messageTextGenerator, IReportGenerator reportGenerator)
+        public MainViewModel(IDataSource dataSource, IStopSellingsBulder stopSellingsBulder, IToastPresenter toastPresenter,
+                                                IMessageTextGenerator messageTextGenerator, IReportGenerator reportGenerator, 
+                                                IWorkFolderOwnerChecker workFolderOwnerChecker)
         {
             if (stopSellingsBulder == null || dataSource == null)
             {
-                //todo: Error and exit
+                Application.Current.Shutdown(); // close application
             }
 
             _stopSellingsBulder = stopSellingsBulder;
@@ -206,20 +201,28 @@ namespace StopSellingMessageGenerator.ViewModels
             _toastPresenter = toastPresenter;
             _messageTextGenerator = messageTextGenerator;
             _reportGenerator = reportGenerator;
+            _workFolderOwnerChecker = workFolderOwnerChecker;
 
             FirstRunCheck();
 
+            WorkFolderExistCheck();
+
+            WorkFolderOwnerCheck();
 
             ViewBusy = true;
             Initialize();
 
             CreateNewStopSellingCommand = new RelayCommand(CreateNewStopSellingExecute);
-			CloseAndExportStopSellingCommand = new RelayCommand(CloseAndExportStopSellingExecute);
+            CloseAndExportStopSellingCommand = new RelayCommand(CloseAndExportStopSellingExecute);
             CreateMessageTextCommand = new RelayCommand(CreateMessageTextExecute, CreateMessageTextCanExecute, this);
 
             OpenSettingsWindowCommand = new RelayCommand(OpenSettingsWindowCommandExecute);
             OpenAboutWindowCommand = new RelayCommand(OpenAboutWindowCommandExecute);
             CheckTtInformationCommand = new RelayCommand(CheckTtInformationCommandExecute, CheckTtInformationCommandCanExecute, this);
+
+            var writeToDiskTimer = new Timer(300000);
+            writeToDiskTimer.Elapsed += WriteDataToDiskOnTimer;
+            writeToDiskTimer.Enabled = true;
         }
 
 
@@ -234,7 +237,6 @@ namespace StopSellingMessageGenerator.ViewModels
 
         public ICommand CheckTtInformationCommand;
 
-
         #region CanExecute
         private bool CreateMessageTextCanExecute(object arg)
         {
@@ -244,16 +246,15 @@ namespace StopSellingMessageGenerator.ViewModels
         private bool CheckTtInformationCommandCanExecute(object o)
         {
             return true;
-            //return CurrentStopSelling != null && !string.IsNullOrWhiteSpace(CurrentStopSelling.TTNumber);
         }
 
         #endregion
-
 
         #region Execute
         private void CreateNewStopSellingExecute()
         {
             var newStopSelling = _stopSellingsBulder.Build();
+
             if (newStopSelling == null)
             {
                 MessageBox.Show("Ошибка при создании стоп-продажи. Проверьте корректность файлов.", "Ошибка при создании стоп-продажи", MessageBoxButton.OK,
@@ -288,10 +289,12 @@ namespace StopSellingMessageGenerator.ViewModels
         private void CreateMessageTextExecute(object o)
         {
             if (CurrentStopSelling == null) return;
-            CurrentStopSelling.StopStopSellingTime = DateTime.Now; //set current time
+
             string messageText;
+
             if (NewStopSellingMessageOption)
             {
+                CurrentStopSelling.StopStopSellingTime = DateTime.Now; //set current time
                 messageText = _messageTextGenerator.GenerateText(CurrentStopSelling,
                     MessageTypeEnum.StartStopSellingMessage);
             }
@@ -326,8 +329,10 @@ namespace StopSellingMessageGenerator.ViewModels
                     Properties.Settings.Default.PathToWorkFolder = settingsViewModel.WorkFolderPath;
                     Properties.Settings.Default.Save();
                     MessageBox.Show(
-                        "Изменения сохранены. Для применения изменений перезапустите программу. Не забудте убедится, что все необходимые файлы присутствуют в новой директории.",
-                        "Изменения сохранены", MessageBoxButton.OK, MessageBoxImage.Information);
+                            "Изменения сохранены. Приложение будет закрыто. Просьба перезвпустить программу." +
+                            "Не забудте убедится, что все необходимые файлы присутствуют в новой директории.",
+                            "Изменения сохранены", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Application.Current.Shutdown(); // close application
                 }
             }
         }
@@ -341,15 +346,99 @@ namespace StopSellingMessageGenerator.ViewModels
 
         #endregion
 
-
-
-
-
-
         private void FirstRunCheck()
         {
-            //throw new NotImplementedException();
+            if(Properties.Settings.Default.firstRun)
+            {
+                using (var settingsViewModel = GetViewModel<SettingsViewModel>())
+                {
+                    settingsViewModel.WorkFolderPath = "";
+                    settingsViewModel.ShowAsync();
+                    if (settingsViewModel.WorkFolderPath != "")
+                    {
+                        Properties.Settings.Default.PathToWorkFolder = settingsViewModel.WorkFolderPath;
+                        Properties.Settings.Default.firstRun = false;
+                        Properties.Settings.Default.Save();
+                        MessageBox.Show(
+                            "Изменения сохранены. Приложение будет закрыто. Просьба перезвпустить программу." +
+                            "Не забудте убедится, что все необходимые файлы присутствуют в новой директории.",
+                            "Изменения сохранены", MessageBoxButton.OK, MessageBoxImage.Information);
+                        Application.Current.Shutdown(); // close application
+                    }
+                }
+            }
         }
+
+        /// <summary>
+        /// Check owner of current work folder.
+        /// If folder occupy, offer choice rewrite owner or close application.
+        /// </summary>
+        private void WorkFolderOwnerCheck()
+        {
+            if(_workFolderOwnerChecker.MeIsOwner()) return;
+
+            var interactResult = MessageBox.Show("Папка занята другим пользователем:" + Environment.NewLine + _workFolderOwnerChecker.GetOwnerData() + 
+                                    Environment.NewLine + "Сбросить сессию пользователя?" ,"Ошибка открытия рабочей папки", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if(interactResult == MessageBoxResult.Yes)
+            {
+                _workFolderOwnerChecker.MakeMeOwner();
+                if(!_workFolderOwnerChecker.MeIsOwner()) 
+                {
+                    MessageBox.Show("Не удалось занять рабочую папку. Приложение будет закрыто.", "Ошибка захвата рабочей папки",MessageBoxButton.OK, MessageBoxImage.Error);
+                    Application.Current.Shutdown(); // close application
+                }
+            }
+            else
+            {
+                MessageBox.Show("Приложение будет закрыто.","Ошибка", MessageBoxButton.OK, MessageBoxImage.Information);
+                Application.Current.Shutdown(); // close application
+            }
+        }
+
+        private void WorkFolderExistCheck()
+        {
+            if(_workFolderOwnerChecker.WorkFolderExist()) return;
+
+            var interactResult = MessageBox.Show("Рабочая папка не существует. Хотите выбрать другую папку?", 
+                "Ошибка открытия рабочей папки", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (interactResult == MessageBoxResult.Yes)
+            {
+                using (var settingsViewModel = GetViewModel<SettingsViewModel>())
+                {
+                    settingsViewModel.WorkFolderPath = Properties.Settings.Default.PathToWorkFolder;
+                    settingsViewModel.ShowAsync();
+                    if (settingsViewModel.WorkFolderPath != Properties.Settings.Default.PathToWorkFolder)
+                    {
+                        Properties.Settings.Default.PathToWorkFolder = settingsViewModel.WorkFolderPath;
+                        Properties.Settings.Default.Save();
+                        MessageBox.Show(
+                            "Изменения сохранены. Приложение будет закрыто. Просьба перезвпустить программу." +
+                            "Не забудте убедится, что все необходимые файлы присутствуют в новой директории.",
+                            "Изменения сохранены", MessageBoxButton.OK, MessageBoxImage.Information);
+                        Application.Current.Shutdown(); // close application
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Убедитесь в наличии доступа к рабочей папке. " +
+                                "Приложение будет закрыто.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Information);
+                Application.Current.Shutdown(); // close application
+            }
+        }
+
+        private void WriteDataToDiskOnTimer(object sender, ElapsedEventArgs elapsedEventArgs)
+        {
+            WorkFolderOwnerCheck();
+            _workFolderOwnerChecker.MakeMeOwner(); //rewrite owner for update last write time
+
+            List<string> readonsDistinct = (from reason in Reasons select reason).Distinct().ToList();
+            List<string> responsibilitiesDistinct = (from responsibility in Responsibilities select responsibility).Distinct().ToList();
+            _dataSource.SaveReasonsOfStopSellings(readonsDistinct);
+            _dataSource.SaveResponsibleDepartments(responsibilitiesDistinct);
+            _dataSource.SaveStopSellings(StopSellings.ToList());
+        }
+
 
 
         private async void Initialize()
@@ -365,23 +454,13 @@ namespace StopSellingMessageGenerator.ViewModels
                 catch (Exception exception)
                 {
                     Logger.Fatal($"Loading data error: {exception}");
-                    MessageBox.Show("Ошибка загрузки справочника . Проверьте наличие и корректность файлов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Environment.Exit(0);
+                    MessageBox.Show("Ошибка загрузки справочника . Проверьте наличие и корректность файлов. " +
+                                    "Приложение будет закрыто.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Application.Current.Shutdown(); // close application
                 }
             });
             ViewBusy = false;
         }
-
-
-
-
-        #region Commands
-
-
-
-        
-
-        #endregion
 
 
         /// <summary>
@@ -393,19 +472,24 @@ namespace StopSellingMessageGenerator.ViewModels
         {
             return Task<bool>.Factory.StartNew(() =>
             {
-                List<string> readonsDistinct = (from reason in Reasons select reason).Distinct().ToList();
-                List<string> responsibilitiesDistinct = (from responsibility in Responsibilities select responsibility).Distinct().ToList();
-                _dataSource.SaveReasonsOfStopSellings(readonsDistinct);
-                _dataSource.SaveResponsibleDepartments(responsibilitiesDistinct);
-                _dataSource.SaveStopSellings(StopSellings.ToList());	
+                if(_workFolderOwnerChecker.MeIsOwner())
+                {
+                    List<string> readonsDistinct = (from reason in Reasons select reason).Distinct().ToList();
+                    List<string> responsibilitiesDistinct = (from responsibility in Responsibilities select responsibility).Distinct().ToList();
+                    _dataSource.SaveReasonsOfStopSellings(readonsDistinct);
+                    _dataSource.SaveResponsibleDepartments(responsibilitiesDistinct);
+                    _dataSource.SaveStopSellings(StopSellings.ToList());
+                }
+                else
+                {
+                    MessageBox.Show("Рабочая папка занята другим пользователем. Данные не сохранены.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
                 return true;
             });
         }
-
         public ICommand CloseCommand { get; set; }
         public event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing;
         public event EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> Closed;
-
 
     }
 }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using NLog;
 using StopSellingMessageGenerator.Interfaces;
 using StopSellingMessageGenerator.Models;
@@ -30,13 +29,13 @@ namespace StopSellingMessageGenerator.AdditionalClasses
             IEnumerable<PropertyInfo> propertyInfos = stopSellingInfo.DeclaredProperties;
             var infos = propertyInfos as List<PropertyInfo> ?? propertyInfos.ToList();
 
-            bool otchetFileExist = File.Exists(_workFolderPath + "\\otchet.csv");
+            bool reportFileExist = File.Exists(_workFolderPath + "\\Report.csv");
             try
             {
-                using (FileStream fileStream = new FileStream(_workFolderPath + "\\otchet.csv", FileMode.Append, FileAccess.Write))
+                using (FileStream fileStream = new FileStream(_workFolderPath + "\\Report.csv", FileMode.Append, FileAccess.Write))
                 using (StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.GetEncoding("windows-1251")))
                 {
-                    if (!otchetFileExist)
+                    if (!reportFileExist)
                     {
                         WriteLine(streamWriter, stopSelling ,infos, true);                  
                     }
@@ -97,6 +96,7 @@ namespace StopSellingMessageGenerator.AdditionalClasses
                             converted = temp ? "Да" : "Нет";
                         }
 
+                        // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                         if (!string.IsNullOrEmpty(converted))
                         {
                             headerTemplate = headerTemplate.Replace(match, converted);

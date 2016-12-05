@@ -6,6 +6,7 @@ using MugenMvvmToolkit.Models;
 using NLog;
 using StopSellingMessageGenerator.AdditionalClasses;
 using StopSellingMessageGenerator.Interfaces;
+// ReSharper disable UseNameofExpression
 
 // ReSharper disable InconsistentNaming
 
@@ -419,6 +420,7 @@ namespace StopSellingMessageGenerator.Models
             TTName = passportTt.Name;
             Region = passportTt.Region;
             City = passportTt.City;
+            // ReSharper disable once MergeConditionalExpression
             Greid = passportTt.GreidFact.HasValue ? passportTt.GreidFact.ToString() : "";
         }
 
