@@ -220,7 +220,7 @@ namespace StopSellingMessageGenerator.ViewModels
             OpenAboutWindowCommand = new RelayCommand(OpenAboutWindowCommandExecute);
             CheckTtInformationCommand = new RelayCommand(CheckTtInformationCommandExecute, CheckTtInformationCommandCanExecute, this);
 
-            var writeToDiskTimer = new Timer(300000);
+            var writeToDiskTimer = new Timer(180000);
             writeToDiskTimer.Elapsed += WriteDataToDiskOnTimer;
             writeToDiskTimer.Enabled = true;
         }
@@ -360,8 +360,8 @@ namespace StopSellingMessageGenerator.ViewModels
                         Properties.Settings.Default.firstRun = false;
                         Properties.Settings.Default.Save();
                         MessageBox.Show(
-                            "Изменения сохранены. Приложение будет закрыто. Просьба перезвпустить программу." +
-                            "Не забудте убедится, что все необходимые файлы присутствуют в новой директории.",
+                            "Изменения сохранены. Приложение будет закрыто. Просьба перезапустить программу." +
+                            "Не забудте убедиться, что все необходимые файлы присутствуют в новой директории.",
                             "Изменения сохранены", MessageBoxButton.OK, MessageBoxImage.Information);
                         Application.Current.Shutdown(); // close application
                     }
@@ -412,8 +412,8 @@ namespace StopSellingMessageGenerator.ViewModels
                         Properties.Settings.Default.PathToWorkFolder = settingsViewModel.WorkFolderPath;
                         Properties.Settings.Default.Save();
                         MessageBox.Show(
-                            "Изменения сохранены. Приложение будет закрыто. Просьба перезвпустить программу." +
-                            "Не забудте убедится, что все необходимые файлы присутствуют в новой директории.",
+                            "Изменения сохранены. Приложение будет закрыто. Просьба перезапустить программу." +
+                            "Не забудте убедиться, что все необходимые файлы присутствуют в новой директории.",
                             "Изменения сохранены", MessageBoxButton.OK, MessageBoxImage.Information);
                         Application.Current.Shutdown(); // close application
                     }
@@ -447,6 +447,7 @@ namespace StopSellingMessageGenerator.ViewModels
             {
                 try
                 {
+                    //todo: add exeptions to _datasource implementation
                     StopSellings = new ObservableCollection<StopSelling>(_dataSource.LoadStopSellings()); //load serialized stopSellings
                     Reasons = new ObservableCollection<string>(_dataSource.LoadReasonsOfStopSellings()); //load reason list
                     Responsibilities = new ObservableCollection<string>(_dataSource.LoadResponsibleDepartments()); //load responsibility list
