@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:StopSellingMessageGenerator"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        Title="Диспетчер стоп-продаж         © Рогожин Владимир 2016"
+        Title="Просмотрщик стоп-продаж         © Рогожин Владимир 2016"
         Width="1000"
         Height="760"
         MinWidth="600"
@@ -49,21 +49,6 @@
                           SelectedItem="{Binding Path=CurrentStopSelling,
                                                  Mode=TwoWay,
                                                  UpdateSourceTrigger=PropertyChanged}">
-                    <ListView.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Удалить" />
-                        </ContextMenu>
-                    </ListView.ContextMenu>
-
-                    <ListView.Resources>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Useful}" Value="false">
-                                    <Setter Property="Background" Value="LightPink" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListView.Resources>
 
                     <ListView.View>
                         <GridView>
@@ -91,25 +76,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0"
-                            Width="150"
-                            Height="25"
-                            Margin="5"
-                            VerticalAlignment="Center"
-                            Click="{DataBinding CreateNewStopSellingCommand}">
-                        Новая стоп-продажа
-                    </Button>
 
-                    <Button Grid.Column="1"
-                            Width="150"
-                            Height="25"
-                            Margin="5"
-                            VerticalAlignment="Center"
-                            Click="{DataBinding CloseAndExportStopSellingCommand}">
-                        Закрыть стоп-продажу
-                    </Button>
-
-                    <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
                         <Button Width="25"
                                 Height="25"
                                 Margin="5"
@@ -162,25 +130,22 @@
                            Grid.Column="0"
                            Margin="5"
                            VerticalAlignment="Center">
-                    Введите номер ТТ:
+                    Номер ТТ:
                 </TextBlock>
                 <TextBox Grid.Row="0"
                          Grid.Column="1"
+                         Grid.ColumnSpan="2"
                          Width="Auto"
                          Height="25"
                          Margin="5"
                          HorizontalContentAlignment="Left"
                          VerticalContentAlignment="Center"
+                         Background="GhostWhite"
+                         IsReadOnly="True"
                          Text="{Binding CurrentStopSelling.TTNumber,
                                         Mode=TwoWay,
                                         UpdateSourceTrigger=PropertyChanged}" />
-                <Button Grid.Row="0"
-                        Grid.Column="2"
-                        Margin="5"
-                        HorizontalAlignment="Stretch"
-                        Click="{DataBinding CheckTtInformationCommand}">
-                    Проверить
-                </Button>
+
 
 
                 <TextBlock Grid.Row="1"
@@ -296,6 +261,8 @@
                          Margin="5"
                          HorizontalContentAlignment="Left"
                          VerticalContentAlignment="Center"
+                         Background="GhostWhite"
+                         IsReadOnly="True"
                          Text="{Binding CurrentStopSelling.ObrashenieAndTimeStringAdapter,
                                         Mode=TwoWay,
                                         UpdateSourceTrigger=LostFocus}" />
@@ -316,7 +283,9 @@
                     <ComboBox Margin="5"
                               HorizontalContentAlignment="Left"
                               VerticalContentAlignment="Center"
+                              Background="GhostWhite"
                               IsEditable="True"
+                              IsReadOnly="True"
                               ItemsSource="{Binding Reasons}"
                               SelectedItem="{Binding SelectedReason,
                                                      Mode=TwoWay}"
@@ -342,7 +311,9 @@
                     <ComboBox Margin="5"
                               HorizontalContentAlignment="Left"
                               VerticalContentAlignment="Center"
+                              Background="GhostWhite"
                               IsEditable="True"
+                              IsReadOnly="True"
                               ItemsSource="{Binding Responsibilities}"
                               SelectedItem="{Binding SelectedResponsibility,
                                                      Mode=TwoWay}"
@@ -391,6 +362,8 @@
                                      Margin="5"
                                      HorizontalContentAlignment="Right"
                                      VerticalContentAlignment="Center"
+                                     Background="GhostWhite"
+                                     IsReadOnly="True"
                                      Value="{Binding CurrentStopSelling.StartStopSellingTime,
                                                      Mode=TwoWay,
                                                      UpdateSourceTrigger=PropertyChanged}" />
@@ -407,6 +380,8 @@
                                      Margin="5"
                                      HorizontalContentAlignment="Right"
                                      VerticalContentAlignment="Center"
+                                     Background="GhostWhite"
+                                     IsReadOnly="True"
                                      Value="{Binding CurrentStopSelling.StopStopSellingTime,
                                                      Mode=TwoWay,
                                                      UpdateSourceTrigger=PropertyChanged}" />
@@ -468,6 +443,8 @@
                          Margin="5"
                          VerticalAlignment="Stretch"
                          AcceptsReturn="True"
+                         Background="GhostWhite"
+                         IsReadOnly="True"
                          Text="{Binding CurrentStopSelling.Coments,
                                         Mode=TwoWay,
                                         UpdateSourceTrigger=PropertyChanged}"
@@ -483,6 +460,8 @@
                          Grid.Column="1"
                          Margin="5"
                          HorizontalContentAlignment="Right"
+                         Background="GhostWhite"
+                         IsReadOnly="True"
                          Text="{Binding CurrentStopSelling.ExpectedSolutionTime,
                                         Mode=TwoWay,
                                         UpdateSourceTrigger=PropertyChanged}" />
@@ -499,8 +478,10 @@
                                      Margin="5"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Right"
+                                     Background="GhostWhite"
                                      IsEnabled="{DataBinding CurrentStopSelling.Reserve,
                                                              Mode=TwoWay}"
+                                     IsReadOnly="True"
                                      Watermark="Во сколько?"
                                      Value="{Binding CurrentStopSelling.ReserveConfigureDateTime,
                                                      Mode=TwoWay,
@@ -517,8 +498,10 @@
                                      Margin="5"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Right"
+                                     Background="GhostWhite"
                                      IsEnabled="{DataBinding CurrentStopSelling.RnitNotified,
                                                              Mode=TwoWay}"
+                                     IsReadOnly="True"
                                      Watermark="Во сколько?"
                                      Value="{Binding CurrentStopSelling.RnitNotifiedTime,
                                                      Mode=TwoWay,

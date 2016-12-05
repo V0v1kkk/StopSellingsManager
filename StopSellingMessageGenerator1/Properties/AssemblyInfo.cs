@@ -7,11 +7,11 @@ using System.Windows;
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("StopSellingsManager")]
-[assembly: AssemblyDescription("ПО для управления текущими стоп-продажами")]
+[assembly: AssemblyTitle("StopSellingsViewer")]
+[assembly: AssemblyDescription("ПО для просмотра текущих стоп-продаж")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Рогожин Владимир")]
-[assembly: AssemblyProduct("StopSellingsManager")]
+[assembly: AssemblyProduct("StopSellingsViewer")]
 [assembly: AssemblyCopyright("Рогожин Владимир ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -51,7 +51,7 @@ using System.Windows;
 // Можно задать все значения или принять номера сборки и редакции по умолчанию 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.9.0.5")]
-[assembly: AssemblyFileVersion("0.9.0.5")]
+[assembly: AssemblyVersion("1.0.0.2")]
+[assembly: AssemblyFileVersion("1.0.0.2")]
 [assembly: NeutralResourcesLanguage("ru")]
 

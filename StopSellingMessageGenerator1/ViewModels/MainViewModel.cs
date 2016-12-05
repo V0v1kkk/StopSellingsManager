@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,10 +22,8 @@ namespace StopSellingMessageGenerator.ViewModels
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly IDataSource _dataSource;
-        private readonly IStopSellingsBulder _stopSellingsBulder;
         private readonly IToastPresenter _toastPresenter;
         private readonly IMessageTextGenerator _messageTextGenerator;
-        private readonly IReportGenerator _reportGenerator;
         private readonly IWorkFolderOwnerChecker _workFolderOwnerChecker;
 
         private bool _viewBusy;
@@ -187,55 +184,38 @@ namespace StopSellingMessageGenerator.ViewModels
 
         #endregion
 
-        public MainViewModel(IDataSource dataSource, IStopSellingsBulder stopSellingsBulder, IToastPresenter toastPresenter,
-                                                IMessageTextGenerator messageTextGenerator, IReportGenerator reportGenerator, 
-                                                IWorkFolderOwnerChecker workFolderOwnerChecker)
+        public MainViewModel(IDataSource dataSource, IToastPresenter toastPresenter, 
+                            IMessageTextGenerator messageTextGenerator, IWorkFolderOwnerChecker workFolderOwnerChecker)
         {
-            if (stopSellingsBulder == null || dataSource == null)
-            {
-                Application.Current.Shutdown(); // close application
-            }
-
-            _stopSellingsBulder = stopSellingsBulder;
             _dataSource = dataSource;
             _toastPresenter = toastPresenter;
             _messageTextGenerator = messageTextGenerator;
-            _reportGenerator = reportGenerator;
             _workFolderOwnerChecker = workFolderOwnerChecker;
 
             FirstRunCheck();
 
             WorkFolderExistCheck();
 
-            WorkFolderOwnerCheck();
-
             ViewBusy = true;
             Initialize();
 
-            CreateNewStopSellingCommand = new RelayCommand(CreateNewStopSellingExecute);
-            CloseAndExportStopSellingCommand = new RelayCommand(CloseAndExportStopSellingExecute);
             CreateMessageTextCommand = new RelayCommand(CreateMessageTextExecute, CreateMessageTextCanExecute, this);
 
             OpenSettingsWindowCommand = new RelayCommand(OpenSettingsWindowCommandExecute);
             OpenAboutWindowCommand = new RelayCommand(OpenAboutWindowCommandExecute);
-            CheckTtInformationCommand = new RelayCommand(CheckTtInformationCommandExecute, CheckTtInformationCommandCanExecute, this);
 
-            var writeToDiskTimer = new Timer(300000);
-            writeToDiskTimer.Elapsed += WriteDataToDiskOnTimer;
-            writeToDiskTimer.Enabled = true;
+            var readFromDiskTimer = new Timer(60000);
+            readFromDiskTimer.Elapsed += ReadDataFromDiskOnTimer;
+            readFromDiskTimer.Enabled = true;
         }
 
 
         #region Commands
 
-        public ICommand CreateNewStopSellingCommand;
-        public ICommand CloseAndExportStopSellingCommand;
         public ICommand CreateMessageTextCommand;
 
         public ICommand OpenSettingsWindowCommand;
         public ICommand OpenAboutWindowCommand;
-
-        public ICommand CheckTtInformationCommand;
 
         #region CanExecute
         private bool CreateMessageTextCanExecute(object arg)
@@ -243,48 +223,9 @@ namespace StopSellingMessageGenerator.ViewModels
             return (NewStopSellingMessageOption || EndStopSellingMessageOption) && (CurrentStopSelling != null);
         }
 
-        private bool CheckTtInformationCommandCanExecute(object o)
-        {
-            return true;
-        }
-
         #endregion
 
         #region Execute
-        private void CreateNewStopSellingExecute()
-        {
-            var newStopSelling = _stopSellingsBulder.Build();
-
-            if (newStopSelling == null)
-            {
-                MessageBox.Show("Ошибка при создании стоп-продажи. Проверьте корректность файлов.", "Ошибка при создании стоп-продажи", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return;
-            }
-            StopSellings.Add(newStopSelling);
-            CurrentStopSelling = newStopSelling;
-        }
-
-        private void CloseAndExportStopSellingExecute()
-        {
-            if (CurrentStopSelling == null)
-            {
-                MessageBox.Show("Выберите стоп-продажу для экспорта", "Не выбрана стоп-продажа", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return;
-            }
-
-            if (_reportGenerator.ExportToReport(CurrentStopSelling))
-            {
-                StopSellings.Remove(CurrentStopSelling);
-                CurrentStopSelling = null;
-                _toastPresenter.ShowAsync("Стоп-продажа перенесена в отчёт", ToastDuration.Short, ToastPosition.Center);
-            }
-            else
-            {
-                _toastPresenter.ShowAsync("Ошибка при экспорте стоп-продажи в отчёт", ToastDuration.Long, ToastPosition.Center);
-            }
-        }
 
         private void CreateMessageTextExecute(object o)
         {
@@ -329,17 +270,12 @@ namespace StopSellingMessageGenerator.ViewModels
                     Properties.Settings.Default.PathToWorkFolder = settingsViewModel.WorkFolderPath;
                     Properties.Settings.Default.Save();
                     MessageBox.Show(
-                            "Изменения сохранены. Приложение будет закрыто. Просьба перезвпустить программу." +
+                            "Изменения сохранены. Приложение будет закрыто. Просьба перезапустить программу." +
                             "Не забудте убедится, что все необходимые файлы присутствуют в новой директории.",
                             "Изменения сохранены", MessageBoxButton.OK, MessageBoxImage.Information);
                     Application.Current.Shutdown(); // close application
                 }
             }
-        }
-
-        private void CheckTtInformationCommandExecute(object obj)
-        {
-            CurrentStopSelling?.CheckTTnumber();
         }
 
         #endregion
@@ -360,7 +296,7 @@ namespace StopSellingMessageGenerator.ViewModels
                         Properties.Settings.Default.firstRun = false;
                         Properties.Settings.Default.Save();
                         MessageBox.Show(
-                            "Изменения сохранены. Приложение будет закрыто. Просьба перезвпустить программу." +
+                            "Изменения сохранены. Приложение будет закрыто. Просьба перезапустить программу." +
                             "Не забудте убедится, что все необходимые файлы присутствуют в новой директории.",
                             "Изменения сохранены", MessageBoxButton.OK, MessageBoxImage.Information);
                         Application.Current.Shutdown(); // close application
@@ -369,31 +305,6 @@ namespace StopSellingMessageGenerator.ViewModels
             }
         }
 
-        /// <summary>
-        /// Check owner of current work folder.
-        /// If folder occupy, offer choice rewrite owner or close application.
-        /// </summary>
-        private void WorkFolderOwnerCheck()
-        {
-            if(_workFolderOwnerChecker.MeIsOwner()) return;
-
-            var interactResult = MessageBox.Show("Папка занята другим пользователем:" + Environment.NewLine + _workFolderOwnerChecker.GetOwnerData() + 
-                                    Environment.NewLine + "Сбросить сессию пользователя?" ,"Ошибка открытия рабочей папки", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if(interactResult == MessageBoxResult.Yes)
-            {
-                _workFolderOwnerChecker.MakeMeOwner();
-                if(!_workFolderOwnerChecker.MeIsOwner()) 
-                {
-                    MessageBox.Show("Не удалось занять рабочую папку. Приложение будет закрыто.", "Ошибка захвата рабочей папки",MessageBoxButton.OK, MessageBoxImage.Error);
-                    Application.Current.Shutdown(); // close application
-                }
-            }
-            else
-            {
-                MessageBox.Show("Приложение будет закрыто.","Ошибка", MessageBoxButton.OK, MessageBoxImage.Information);
-                Application.Current.Shutdown(); // close application
-            }
-        }
 
         private void WorkFolderExistCheck()
         {
@@ -427,16 +338,11 @@ namespace StopSellingMessageGenerator.ViewModels
             }
         }
 
-        private void WriteDataToDiskOnTimer(object sender, ElapsedEventArgs elapsedEventArgs)
+        private void ReadDataFromDiskOnTimer(object sender, ElapsedEventArgs elapsedEventArgs)
         {
-            WorkFolderOwnerCheck();
-            _workFolderOwnerChecker.MakeMeOwner(); //rewrite owner for update last write time
-
-            List<string> readonsDistinct = (from reason in Reasons select reason).Distinct().ToList();
-            List<string> responsibilitiesDistinct = (from responsibility in Responsibilities select responsibility).Distinct().ToList();
-            _dataSource.SaveReasonsOfStopSellings(readonsDistinct);
-            _dataSource.SaveResponsibleDepartments(responsibilitiesDistinct);
-            _dataSource.SaveStopSellings(StopSellings.ToList());
+            WorkFolderExistCheck();
+            ViewBusy = true;
+            Initialize();
         }
 
 
@@ -447,9 +353,40 @@ namespace StopSellingMessageGenerator.ViewModels
             {
                 try
                 {
-                    StopSellings = new ObservableCollection<StopSelling>(_dataSource.LoadStopSellings()); //load serialized stopSellings
-                    Reasons = new ObservableCollection<string>(_dataSource.LoadReasonsOfStopSellings()); //load reason list
-                    Responsibilities = new ObservableCollection<string>(_dataSource.LoadResponsibleDepartments()); //load responsibility list
+                    var tempStopSellings = new ObservableCollection<StopSelling>(_dataSource.LoadStopSellings()); //load serialized stopSellings
+                    if (StopSellings == null) StopSellings = tempStopSellings;
+                    else if (!StopSellings.SequenceEqual(tempStopSellings))
+                    {
+                        // ReSharper disable once InconsistentNaming
+                        var selectedTTName = CurrentStopSelling.TTName;
+                        CurrentStopSelling = null;
+                        StopSellings = tempStopSellings;
+                        CurrentStopSelling = StopSellings.FirstOrDefault(x => x.TTName == selectedTTName);
+                    }
+
+                    bool dictionarysChanged = false;
+                    var tempRasons = new ObservableCollection<string>(_dataSource.LoadReasonsOfStopSellings()); //load reason list
+                    if (Reasons == null) Reasons = tempRasons;
+                    else if (!Reasons.SequenceEqual(tempRasons))
+                    {
+                        Reasons = tempRasons;
+                        dictionarysChanged = true;
+                    }
+
+                    var tempResponsibilities = new ObservableCollection<string>(_dataSource.LoadResponsibleDepartments()); //load responsibility list
+                    if (Responsibilities == null) Responsibilities = tempResponsibilities;
+                    else if (!Responsibilities.SequenceEqual(tempResponsibilities))
+                    {
+                        Reasons = tempResponsibilities;
+                        dictionarysChanged = true;
+                    }
+
+                    if (dictionarysChanged) //refresh selected item
+                    {
+                        var tempSelectedItem = CurrentStopSelling;
+                        CurrentStopSelling = null;
+                        CurrentStopSelling = tempSelectedItem; 
+                    }
                 }
                 catch (Exception exception)
                 {
@@ -470,22 +407,7 @@ namespace StopSellingMessageGenerator.ViewModels
         /// <returns></returns>
         public Task<bool> CloseAsync(object parameter = null)
         {
-            return Task<bool>.Factory.StartNew(() =>
-            {
-                if(_workFolderOwnerChecker.MeIsOwner())
-                {
-                    List<string> readonsDistinct = (from reason in Reasons select reason).Distinct().ToList();
-                    List<string> responsibilitiesDistinct = (from responsibility in Responsibilities select responsibility).Distinct().ToList();
-                    _dataSource.SaveReasonsOfStopSellings(readonsDistinct);
-                    _dataSource.SaveResponsibleDepartments(responsibilitiesDistinct);
-                    _dataSource.SaveStopSellings(StopSellings.ToList());
-                }
-                else
-                {
-                    MessageBox.Show("Рабочая папка занята другим пользователем. Данные не сохранены.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                return true;
-            });
+            return Empty.TrueTask;
         }
         public ICommand CloseCommand { get; set; }
         public event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing;

@@ -30,7 +30,7 @@ namespace StopSellingMessageGenerator.ViewModels
 
             Assembly assembly = Assembly.GetEntryAssembly();
             Version = assembly.GetName().Version.ToString();
-            Title = "Менеджер стоп-продаж";
+            Title = "Просмотрщик стоп-продаж";
 
             #if NET35 || NET40
 			AssemblyCopyrightAttribute copyright = Attribute.GetCustomAttribute(assembly, typeof(AssemblyCopyrightAttribute)) as AssemblyCopyrightAttribute;

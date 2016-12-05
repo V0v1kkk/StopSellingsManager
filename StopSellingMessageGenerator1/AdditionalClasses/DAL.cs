@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Xml.Serialization;
 using FileHelpers;
 using NLog;
+using StopSellingMessageGenerator.AdditionalClasses;
 using StopSellingMessageGenerator.Interfaces;
 using StopSellingMessageGenerator.Models;
 // ReSharper disable InconsistentNaming
@@ -84,7 +86,12 @@ namespace StopSellingMessageGenerator
         public List<StopSelling> LoadStopSellings()
         {
             BinaryFormatter formatter = new BinaryFormatter();
-			try
+            //formatter.AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple;
+            //Костыль. При наличии времени, лучше переписать механизм сериализации с использованием стороннего форматтера
+            //например: https://github.com/mgravell/protobuf-net
+            formatter.Binder = new DictionarySerializationBinder(); 
+
+            try
 			{
 				using (FileStream fs = new FileStream(_workPath + "\\StopSellings.dat", FileMode.Open, FileAccess.Read, FileShare.Read))
 				{
