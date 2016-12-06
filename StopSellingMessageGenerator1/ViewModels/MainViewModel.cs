@@ -480,6 +480,7 @@ namespace StopSellingMessageGenerator.ViewModels
                     _dataSource.SaveReasonsOfStopSellings(readonsDistinct);
                     _dataSource.SaveResponsibleDepartments(responsibilitiesDistinct);
                     _dataSource.SaveStopSellings(StopSellings.ToList());
+                    _workFolderOwnerChecker.ClearOwnership();
                 }
                 else
                 {

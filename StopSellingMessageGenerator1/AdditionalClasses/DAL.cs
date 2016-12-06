@@ -106,9 +106,9 @@ namespace StopSellingMessageGenerator
 			try
 			{
 				var serializer = new XmlSerializer(typeof(List<string>));
-				using (var stream = File.OpenWrite(_workPath + "\\Reasons.xml")) //Перезаписываем
+				using (FileStream fs = new FileStream(_workPath + "\\Reasons.xml", FileMode.Create, FileAccess.Write, FileShare.None))
 				{
-					serializer.Serialize(stream, reasons);
+					serializer.Serialize(fs, reasons);
 				}
 				return true;
 			}
@@ -144,9 +144,9 @@ namespace StopSellingMessageGenerator
 			try
 			{
 				var serializer = new XmlSerializer(typeof(List<string>));
-				using (var stream = File.OpenWrite(_workPath + "\\Responsibilities.xml")) //Перезаписываем
+				using (FileStream fs = new FileStream(_workPath + "\\Responsibilities.xml", FileMode.Create, FileAccess.Write, FileShare.None))
 				{
-					serializer.Serialize(stream, departments);
+					serializer.Serialize(fs, departments);
 				}
 				return true;
 			}            

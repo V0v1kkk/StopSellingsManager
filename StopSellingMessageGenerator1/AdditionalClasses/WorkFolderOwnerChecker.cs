@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NLog;
 using StopSellingMessageGenerator.Interfaces;
 
 namespace StopSellingMessageGenerator.AdditionalClasses
@@ -11,6 +8,7 @@ namespace StopSellingMessageGenerator.AdditionalClasses
     class WorkFolderOwnerChecker : IWorkFolderOwnerChecker
     {
         private readonly string _workFolder;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public WorkFolderOwnerChecker(string workFolder)
         {
@@ -41,8 +39,9 @@ namespace StopSellingMessageGenerator.AdditionalClasses
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
+                Logger.Error("Erron on take ownership. Error message: " + exception);
                 return false;
             }
         }
@@ -61,9 +60,22 @@ namespace StopSellingMessageGenerator.AdditionalClasses
                 if (ownerFileTextParts.Length < 2) return "";
                 return $"{ownerFileTextParts[0]}, дата и время последнего сброса данных на диск: {ownerFileTextParts[1]}";
             }
-            catch (Exception)
+            catch (Exception exception)
             {
+                Logger.Error("Erron on getting owner information. Error message: " + exception);
                 return "";
+            }
+        }
+
+        public void ClearOwnership()
+        {
+            try
+            {
+                if(File.Exists(_workFolder + "\\owner.txt")) File.Delete(_workFolder + "\\owner.txt");
+            }
+            catch(Exception exception)
+            {
+                Logger.Error("Erron on clear ownership. Error message: " + exception);
             }
         }
     }
