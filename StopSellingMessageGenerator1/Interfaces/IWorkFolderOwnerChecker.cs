@@ -24,5 +24,10 @@
         /// </summary>
         /// <returns></returns>
         string GetOwnerData();
+
+        /// <summary>
+        /// Delete information about ownership in work folder
+        /// </summary>
+        void ClearOwnership();
     }
 }

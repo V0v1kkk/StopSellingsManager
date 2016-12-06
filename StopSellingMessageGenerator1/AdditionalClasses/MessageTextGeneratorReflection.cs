@@ -26,49 +26,57 @@ namespace StopSellingMessageGenerator.AdditionalClasses
         {
             if (stopSelling == null) return "";
 
-            TypeInfo stopSellingInfo = stopSelling.GetType().GetTypeInfo();
-            IEnumerable<PropertyInfo> propertyInfos = stopSellingInfo.DeclaredProperties;
-            var infos = propertyInfos as IList<PropertyInfo> ?? propertyInfos.ToList();
-
-            string textTemplate = @enum == MessageTypeEnum.StartStopSellingMessage ? GetOpenTemplateText() : GetCloseTemplateText();
-            if (string.IsNullOrEmpty(textTemplate)) return "";
-
-            Regex regex = new Regex(@"%\w*%", RegexOptions.Compiled);
-            var matches = regex.Matches(textTemplate);
-            var uniqueMatches = matches.OfType<Match>().Select(m => m.Value).Distinct();
-
-            foreach (string match in uniqueMatches)
+            try
             {
-                string macrosName = match.Replace("%","");
-                var propery = infos.FirstOrDefault(x => x.Name == macrosName);
-                if (propery != null)
+                TypeInfo stopSellingInfo = stopSelling.GetType().GetTypeInfo();
+                IEnumerable<PropertyInfo> propertyInfos = stopSellingInfo.DeclaredProperties;
+                var infos = propertyInfos as IList<PropertyInfo> ?? propertyInfos.ToList();
+
+                string textTemplate = @enum == MessageTypeEnum.StartStopSellingMessage ? GetOpenTemplateText() : GetCloseTemplateText();
+                if (string.IsNullOrEmpty(textTemplate)) return "";
+
+                Regex regex = new Regex(@"%\w*%", RegexOptions.Compiled);
+                var matches = regex.Matches(textTemplate);
+                var uniqueMatches = matches.OfType<Match>().Select(m => m.Value).Distinct();
+
+                foreach (string match in uniqueMatches)
                 {
-                    var getMethod = propery.GetGetMethod();
-                    var result = getMethod.Invoke(stopSelling, null);
-                    string converted = "";
-                    if (result is string)
+                    string macrosName = match.Replace("%","");
+                    var propery = infos.FirstOrDefault(x => x.Name == macrosName);
+                    if (propery != null)
                     {
-                        converted = result.ToString();
+                        var getMethod = propery.GetGetMethod();
+                        var result = getMethod.Invoke(stopSelling, null);
+                        string converted = "";
+                        if (result is string)
+                        {
+                            converted = result.ToString();
+                        }
+                        else if(result is DateTime)
+                        {
+                            DateTime temp = (DateTime)result;
+                            converted = temp.ToString("dd.MM.yyyy HH:mm:ss");
+                        }
+                        else if(result is bool)
+                        {
+                            bool temp = (bool) result;
+                            converted = temp ? "Да" : "Нет";
+                        }
+                        
+                        if (!string.IsNullOrEmpty(converted))
+                        {
+                            textTemplate = textTemplate.Replace(match, converted);
+                        }
                     }
-                    else if(result is DateTime)
-                    {
-                        DateTime temp = (DateTime)result;
-                        converted = temp.ToString("dd.MM.yyyy HH:mm:ss");
-                    }
-                    else if(result is bool)
-                    {
-                        bool temp = (bool) result;
-                        converted = temp ? "Да" : "Нет";
-                    }
-                    
-                    if (!string.IsNullOrEmpty(converted))
-                    {
-                        textTemplate = textTemplate.Replace(match, converted);
-                    }
+                
                 }
-               
+                return DecodeEncodedNonAsciiCharacters(textTemplate);
             }
-            return DecodeEncodedNonAsciiCharacters(textTemplate);
+            catch(Exception exception)
+            {
+                Logger.Error("Ошибка формирования текста сообщения: " + exception);
+                return "";
+            }
         }
 
         string DecodeEncodedNonAsciiCharacters(string value)
