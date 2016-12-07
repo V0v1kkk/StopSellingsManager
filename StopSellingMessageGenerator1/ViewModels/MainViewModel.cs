@@ -354,10 +354,6 @@ namespace StopSellingMessageGenerator.ViewModels
                 try
                 {
                     var tempStopSellings = new ObservableCollection<StopSelling>(_dataSource.LoadStopSellings()); //load serialized stopSellings
-                    foreach (var stopSelling in tempStopSellings)
-                    {
-                        stopSelling.StopStopSellingTime = DateTime.Now;
-                    }
                     if (StopSellings == null) StopSellings = tempStopSellings;
                     else if (!StopSellings.SequenceEqual(tempStopSellings))
                     {
@@ -390,6 +386,11 @@ namespace StopSellingMessageGenerator.ViewModels
                         var tempSelectedItem = CurrentStopSelling;
                         CurrentStopSelling = null;
                         CurrentStopSelling = tempSelectedItem; 
+                    }
+
+                    foreach (var stopSelling in StopSellings) // refresh duration of stop sellings
+                    {
+                        stopSelling.StopStopSellingTime = DateTime.Now;
                     }
                 }
                 catch (Exception exception)
