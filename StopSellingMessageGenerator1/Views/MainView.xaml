@@ -373,7 +373,7 @@
                            Grid.Column="0"
                            Margin="5"
                            VerticalAlignment="Center">
-                    Стоп-время и дата:
+                    Стоп-время и дата (МСК):
                 </TextBlock>
                 <xctk:DateTimePicker Grid.Row="0"
                                      Grid.Column="1"
@@ -392,7 +392,7 @@
                            Grid.Column="0"
                            Margin="5"
                            VerticalAlignment="Center">
-                    Стоп-время и дата завершения:
+                    Стоп-время и дата завершения (МСК):
                 </TextBlock>
                 <xctk:DateTimePicker Grid.Row="1"
                                      Grid.Column="1"
@@ -489,7 +489,7 @@
                           Margin="5"
                           IsChecked="{Binding CurrentStopSelling.Reserve,
                                               Mode=TwoWay}">
-                    Резерв настраивался?
+                    Резерв настраивался?  (МСК)
                 </CheckBox>
 
                 <xctk:DateTimePicker Grid.Row="3"
@@ -512,7 +512,7 @@
                           Margin="5"
                           IsChecked="{Binding CurrentStopSelling.RnitNotified,
                                               Mode=TwoWay}">
-                    РНИТ оповещался?
+                    РНИТ оповещался? (МСК)
                 </CheckBox>
                 <xctk:DateTimePicker Grid.Row="4"
                                      Grid.Column="1"

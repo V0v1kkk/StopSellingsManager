@@ -294,7 +294,7 @@ namespace StopSellingMessageGenerator.ViewModels
 
             if (NewStopSellingMessageOption)
             {
-                CurrentStopSelling.StopStopSellingTime = DateTime.Now; //set current time
+                CurrentStopSelling.StopStopSellingTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time")); //set current MSK time
                 messageText = _messageTextGenerator.GenerateText(CurrentStopSelling,
                     MessageTypeEnum.StartStopSellingMessage);
             }
