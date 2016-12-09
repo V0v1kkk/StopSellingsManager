@@ -357,7 +357,7 @@
                            Grid.Column="0"
                            Margin="5"
                            VerticalAlignment="Center">
-                    Стоп-время и дата:
+                    Стоп-время и дата (МСК):
                 </TextBlock>
                 <xctk:DateTimePicker Grid.Row="0"
                                      Grid.Column="1"
@@ -365,11 +365,11 @@
                                      Margin="5"
                                      HorizontalContentAlignment="Right"
                                      VerticalContentAlignment="Center"
+                                     Background="GhostWhite"
                                      Format="Custom"
                                      FormatString="dd MMMM yyyy HH:mm:ss"
-                                     UpdateValueOnEnterKey="True"
-                                     Background="GhostWhite"
                                      IsReadOnly="True"
+                                     UpdateValueOnEnterKey="True"
                                      Value="{Binding CurrentStopSelling.StartStopSellingTime,
                                                      Mode=TwoWay,
                                                      UpdateSourceTrigger=PropertyChanged}" />
@@ -378,7 +378,7 @@
                            Grid.Column="0"
                            Margin="5"
                            VerticalAlignment="Center">
-                    Стоп-время и дата завершения:
+                    Стоп-время и дата завершения (МСК):
                 </TextBlock>
                 <xctk:DateTimePicker Grid.Row="1"
                                      Grid.Column="1"
@@ -386,12 +386,12 @@
                                      Margin="5"
                                      HorizontalContentAlignment="Right"
                                      VerticalContentAlignment="Center"
+                                     Background="GhostWhite"
                                      Format="Custom"
                                      FormatString="dd MMMM yyyy HH:mm:ss"
+                                     IsReadOnly="True"
                                      TimePickerAllowSpin="False"
                                      UpdateValueOnEnterKey="True"
-                                     Background="GhostWhite"
-                                     IsReadOnly="True"
                                      Value="{Binding CurrentStopSelling.StopStopSellingTime,
                                                      Mode=TwoWay,
                                                      UpdateSourceTrigger=PropertyChanged}" />
@@ -481,7 +481,7 @@
                           Margin="5"
                           IsChecked="{Binding CurrentStopSelling.Reserve,
                                               Mode=TwoWay}">
-                    Резерв настраивался?
+                    Резерв настраивался?  (МСК)
                 </CheckBox>
 
                 <xctk:DateTimePicker Grid.Row="3"
@@ -489,13 +489,13 @@
                                      Margin="5"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Right"
+                                     Background="GhostWhite"
                                      Format="Custom"
                                      FormatString="dd MMMM yyyy HH:mm:ss"
-                                     Background="GhostWhite"
                                      IsEnabled="{DataBinding CurrentStopSelling.Reserve,
                                                              Mode=TwoWay}"
-                                     UpdateValueOnEnterKey="True"
                                      IsReadOnly="True"
+                                     UpdateValueOnEnterKey="True"
                                      Watermark="Во сколько?"
                                      Value="{Binding CurrentStopSelling.ReserveConfigureDateTime,
                                                      Mode=TwoWay,
@@ -506,16 +506,16 @@
                           Margin="5"
                           IsChecked="{Binding CurrentStopSelling.RnitNotified,
                                               Mode=TwoWay}">
-                    РНИТ оповещался?
+                    РНИТ оповещался? (МСК)
                 </CheckBox>
                 <xctk:DateTimePicker Grid.Row="4"
                                      Grid.Column="1"
                                      Margin="5"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Right"
+                                     Background="GhostWhite"
                                      Format="Custom"
                                      FormatString="dd MMMM yyyy HH:mm:ss"
-                                     Background="GhostWhite"
                                      IsEnabled="{DataBinding CurrentStopSelling.RnitNotified,
                                                              Mode=TwoWay}"
                                      IsReadOnly="True"
