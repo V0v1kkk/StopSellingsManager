@@ -16,6 +16,7 @@ using NLog;
 using StopSellingMessageGenerator.Enums;
 using StopSellingMessageGenerator.Interfaces;
 using StopSellingMessageGenerator.Models;
+using Clipboard = System.Windows.Forms.Clipboard;
 
 namespace StopSellingMessageGenerator.ViewModels
 {
@@ -315,8 +316,8 @@ namespace StopSellingMessageGenerator.ViewModels
             }
             catch(Exception ex)
             {
-                Logger.Error($"Ошибка формирования сообщения: {exception}");
-                _toastPresenter.ShowAsync($"Ошибка формирования сообщения: {exception}", ToastDuration.Short, ToastPosition.Center);
+                Logger.Error($"Ошибка формирования сообщения: {ex}");
+                _toastPresenter.ShowAsync($"Ошибка формирования сообщения: {ex}", ToastDuration.Short, ToastPosition.Center);
             }
         }
 
