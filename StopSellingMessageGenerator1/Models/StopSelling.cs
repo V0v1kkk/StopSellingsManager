@@ -18,6 +18,11 @@ namespace StopSellingMessageGenerator.Models
         public StopSelling(ITtInformationSource source = null)
         {
             DataSource = source;
+
+            var currentMoscowTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time"));
+            _reserveConfigureDateTime = currentMoscowTime;
+            _rnitNotifiedTime = currentMoscowTime;
+            _stopStopSellingTime = currentMoscowTime;
         }
 
         [NonSerialized]
@@ -32,7 +37,7 @@ namespace StopSellingMessageGenerator.Models
         private string _greid;
         private string _reason;
         private bool _reserve;
-        private DateTime _reserveConfigureDateTime = DateTime.Now;
+        private DateTime _reserveConfigureDateTime;
         private DateTime _startStopSellingTime;
         private string _coments;
         private string _responsibility;
@@ -40,8 +45,8 @@ namespace StopSellingMessageGenerator.Models
 
         private string _obrashenieAndTimeString;
         private string _obrashenieNumber;
-        private DateTime _rnitNotifiedTime = DateTime.Now;
-        private DateTime _stopStopSellingTime = DateTime.Now;
+        private DateTime _rnitNotifiedTime;
+        private DateTime _stopStopSellingTime;
 	    private string _expectedSolutionTime;
 
         #region Properties which setup in UI
@@ -311,7 +316,7 @@ namespace StopSellingMessageGenerator.Models
                 {
                     if (stringBuilder.Length > 0) stringBuilder.Append(" ");
                     stringBuilder.Append($"{span.Minutes} ");
-                    stringBuilder.Append(Helper.GetDeclension(span.Minutes, "минуа", "минуты", "минут"));
+                    stringBuilder.Append(Helper.GetDeclension(span.Minutes, "минута", "минуты", "минут"));
                 }
                 return stringBuilder.ToString();
             }

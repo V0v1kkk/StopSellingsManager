@@ -289,27 +289,35 @@ namespace StopSellingMessageGenerator.ViewModels
         private void CreateMessageTextExecute(object o)
         {
             if (CurrentStopSelling == null) return;
-
+            
             string messageText;
 
-            if (NewStopSellingMessageOption)
+            try
             {
-                CurrentStopSelling.StopStopSellingTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time")); //set current MSK time
-                messageText = _messageTextGenerator.GenerateText(CurrentStopSelling,
-                    MessageTypeEnum.StartStopSellingMessage);
-            }
-            else if (EndStopSellingMessageOption)
-            {
-                messageText = _messageTextGenerator.GenerateText(CurrentStopSelling,
-                    MessageTypeEnum.EndStopSellingMessage);
-            }
-            else
-            {
-                return;
-            }
+                if (NewStopSellingMessageOption)
+                {
+                    CurrentStopSelling.StopStopSellingTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time")); //set current MSK time
+                    messageText = _messageTextGenerator.GenerateText(CurrentStopSelling,
+                        MessageTypeEnum.StartStopSellingMessage);
+                }
+                else if (EndStopSellingMessageOption)
+                {
+                    messageText = _messageTextGenerator.GenerateText(CurrentStopSelling,
+                        MessageTypeEnum.EndStopSellingMessage);
+                }
+                else
+                {
+                    return;
+                }
 
-            Clipboard.SetText(messageText);
-            _toastPresenter.ShowAsync("Сообщение скопировано в буфер обмена", ToastDuration.Short, ToastPosition.Center);
+                Clipboard.SetDataObject(messageText, false, 5, 200); 
+                _toastPresenter.ShowAsync("Сообщение скопировано в буфер обмена", ToastDuration.Short, ToastPosition.Center);
+            }
+            catch(Exception ex)
+            {
+                Logger.Error($"Ошибка формирования сообщения: {exception}");
+                _toastPresenter.ShowAsync($"Ошибка формирования сообщения: {exception}", ToastDuration.Short, ToastPosition.Center);
+            }
         }
 
         private async void OpenAboutWindowCommandExecute(object obj)
